@@ -278,8 +278,7 @@ stage ("Publish to Nexus") {
     }
 }
 ```
-
-![alt text](.images/image-21.png)
+![alt text](.images/nexus.png)
 
 # Complete Pipeline 
 
