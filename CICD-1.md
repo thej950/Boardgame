@@ -265,10 +265,21 @@ stage('SonarQube Analsyis') {
 
 
 ### Nexust integration from jenkins 
- - Pipeline Syntax
-     
+ - from Pipeline Syntax (withMaven:Provide Maven Environment)
 
+```bash
+stage ("Publish to Nexus") {
+    steps {
+        script {
+            withMaven(globalMavenSettingsConfig: 'global-settings', jdk: 'java17', maven: 'maven3', mavenSettingsConfig: '', traceability: true) {
+            sh "mvn deploy"
+            }
+        }
+    }
+}
+```
 
+![alt text](.images/image-21.png)
 
 # Complete Pipeline 
 
