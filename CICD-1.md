@@ -30,7 +30,7 @@
 
 
 ## Jenkins Server Setup
-1. Launch Server with Installed softwares (8080,22)
+1. Launch Server 2cpu 4gb ram 20gb storage with Installed softwares
 	- openjdk-17-jdk
 	- jenkins
 	- maven
@@ -279,6 +279,14 @@ stage ("Publish to Nexus") {
 }
 ```
 ![alt text](.images/nexus.png)
+
+### Docker Integration From jenkins 
+ - add Dockerhub credentials in jenkins For to push image  
+ - create image and make tag
+ - scan using trivy for to find image vulnerability 
+ - push docker image into dockerhub     
+
+
 
 # Complete Pipeline 
 
