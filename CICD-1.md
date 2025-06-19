@@ -189,6 +189,48 @@
     
 ![alt text](.images/image-14.png)
 
+### Access SonarQube server integration from Jenkins 
+ - Goto Pipeline Syntax-> 
+
+![alt text](.images/image-17.png)
+
+
+ - Below environment need to add below tools section 
+
+```bash
+environment {
+        SCANNER_HOME= tool 'sonar-scanner'  
+    }
+```
+
+
+```bash
+stage('SonarQube Analsyis') {
+    steps {
+        withSonarQubeEnv('sonar') {
+            sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=BoardGame -Dsonar.projectKey=BoardGame \
+                    -Dsonar.java.binaries=. '''
+        }
+    }
+}
+```
+![alt text](.images/image-18.png)
+
+```bash
+        stage('Quality Gate') {
+            steps {
+                script {
+                  waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token' 
+                }
+            }
+        }
+```
+
+![alt text](.images/image-19.png)
+
+![alt text](.images/image-20.png)
+
+
 ### To Access Nexus From Jenkins pipeline 
  - In ordered to publish an artifact to Nexus Repository we have to setup a process 
  - to access Nexus server we have to download a plugin "config file provider" this plugin we already downloaded so after this in jenkins a section available in =====>  Manage Jenkins-> Managed File  
@@ -201,6 +243,7 @@
  - content: --> file generated below 
 
  - find in the below servers section 
+ - These are important to access nexus repository from jenkins 
  	```xml
 	<server>
 	  <id>maven-releases</id>
@@ -219,6 +262,11 @@
 ![alt text](.images/image-15.png)
 
 ![alt text](.images/image-16.png)
+
+
+### Nexust integration from jenkins 
+ - Pipeline Syntax
+     
 
 
 
@@ -418,12 +466,15 @@ pipeline {
         jdk 'java17'
         maven 'maven3'
     }
+    environment {
+        SCANNER_HOME= tool 'sonar-scanner'  
+    }
 
     stages {
         stage('checkout') {
             steps {
 			cleanWs()
-            git branch: 'main', url: 'https://github.com/jaiswaladi246/Boardgame.git'
+            git branch: 'main', url: 'https://github.com/thej950/Boardgame.git'
             }
         }
         stage('Test') {
@@ -436,7 +487,29 @@ pipeline {
                 sh "trivy fs --format table -o trivy-fs-report.html ."
             }
         }
+        stage('SonarQube Analsyis') {
+            steps {
+                withSonarQubeEnv('sonar') {
+                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=BoardGame -Dsonar.projectKey=BoardGame \
+                            -Dsonar.java.binaries=. '''
+                }
+            }
+        }
+        stage('Quality Gate') {
+            steps {
+                script {
+                  waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token' 
+                }
+            }
+        }
+        stage('Build') {
+            steps {
+               sh "mvn package"
+            }
+        }
+
 	}
 }
+
 ```
 
