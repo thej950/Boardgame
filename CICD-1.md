@@ -158,7 +158,7 @@
 		id: docker-cred
 		cred: docker-cred
 
-![alt text](.images/image-11.png)
+![alt text](.images/msedge_qluE1Z9nVi.png)
 
 ![alt text](.images/image-12.png)
 
@@ -166,7 +166,7 @@
  ### Configuring Tools 
   - DashBoard->Manage Jenkins->Tools->
 	 1. Java 
-	   name : jdk17
+	   name : java17
 		- select install automatically (install from adopetium.net(17 version))
 	 2. SonarQube Scanner Installations
 	   name : sonar-scanner 
@@ -190,7 +190,7 @@
 ![alt text](.images/image-14.png)
 
 # Access SonarQube server integration from Jenkins with Pipeline stage
- - Goto Pipeline Syntax-> 
+ - Goto Pipeline Syntax  
 
 ![alt text](.images/image-17.png)
 
@@ -264,7 +264,7 @@ stage('SonarQube Analsyis') {
 ![alt text](.images/image-16.png)
 
 
-### Nexust integration from jenkins 
+# Nexus integration from jenkins with pipeline stage 
  - from Pipeline Syntax (withMaven:Provide Maven Environment)
 
 ```bash
@@ -280,11 +280,43 @@ stage ("Publish to Nexus") {
 ```
 ![alt text](.images/nexus.png)
 
-### Docker Integration From jenkins 
- - add Dockerhub credentials in jenkins For to push image  
+# Docker Integration From jenkins 
+ - added Dockerhub credentials in jenkins For to push image  
  - create image and make tag
  - scan using trivy for to find image vulnerability 
- - push docker image into dockerhub     
+ - push docker image into dockerhub 
+
+```bash
+stage('Build & Tag Docker Image') {
+	steps {
+	   script {
+		   withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
+					sh "docker build -t navathej408/boardshack:latest ."
+			}
+	   }
+	}
+}
+
+stage('Docker Image Scan') {
+	steps {
+		sh "trivy image --format table -o trivy-image-report.html navathej408/boardshack:latest "
+	}
+}
+
+stage('Push Docker Image') {
+	steps {
+	   script {
+		   withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
+					sh "docker push navathej408/boardshack:latest"
+			}
+	   }
+	}
+}
+
+```
+
+![alt text](.images/image-11.png)    
+
 
 
 
@@ -477,6 +509,10 @@ sh install-docker.sh
 sudo docker run -d --name nexus -p 8081:8081 sonatype/nexus3
 ```
 
+
+# Pipeline Code 
+
+
 ```bash
 pipeline {
     agent any
@@ -525,9 +561,42 @@ pipeline {
                sh "mvn package"
             }
         }
+        stage ("Publish to Nexus") {
+            steps {
+                script {
+                    withMaven(globalMavenSettingsConfig: 'global-settings', jdk: 'java17', maven: 'maven3', mavenSettingsConfig: '', traceability: true) {
+                    sh "mvn deploy"
+                    }
+                }
+            }
+        }
+        stage('Build & Tag Docker Image') {
+        	steps {
+        	   script {
+        		   withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
+        					sh "docker build -t navathej408/boardshack:latest ."
+        			}
+        	   }
+        	}
+        }
+        stage('Docker Image Scan') {
+        	steps {
+        		sh "trivy image --format table -o trivy-image-report.html navathej408/boardshack:latest "
+        	}
+        }
+        stage('Push Docker Image') {
+        	steps {
+        	   script {
+        		   withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
+        					sh "docker push navathej408/boardshack:latest"
+        			}
+        	   }
+        	}
+        }
 
 	}
 }
+
 
 ```
 
