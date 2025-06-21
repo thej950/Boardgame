@@ -348,7 +348,8 @@ kubeaudit all
   - create ServiceAccount with jenkins username 
   - create Role with required permissions 
   - Bind Role to jenkins user  (Now jenkins user able to deploy app into k8s cluster)   
-3. Create a Token for k8s authentication from jenkins user 
+3. Create a Token for k8s authentication from jenkins user `| [ServiceAccount token](https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/#:~:text=To%20create%20a%20non%2Dexpiring,with%20that%20generated%20token%20data.)`
+
 4. after creating secret yaml file | it will give token describe it take copy of it Paste into Jenkins Dashboard -> Manage Jenkins -> Credentials with name (k8s-cred) 
 ```bash
 kubectl describe secret mysecretname -n webapps # this command will give you token deatils 
