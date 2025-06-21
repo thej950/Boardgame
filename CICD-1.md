@@ -7,7 +7,7 @@
 	5. CD - Continuos Delivery
 	6. Monitoring 
   
-## Scenario - Example 
+# Scenario - Example 
 	
  1. The client requested a change in the application’s background color He requeste was documentaed in JIRA ticket with detailed information 
  
@@ -29,7 +29,7 @@
 - Monitor Application, Servers, pods 
 
 
-## Jenkins Server Setup
+# Jenkins Server Setup
 1. Launch Server 2cpu 4gb ram 20gb storage with Installed softwares
 	- openjdk-17-jdk
 	- jenkins
@@ -39,7 +39,7 @@
 	- trivy
 	- kubectl 
 
-## SonarQube Server
+# SonarQube Server
  - SonarQube is a very important tool for maintaining and improving code quality, by automating static code analysis, it will help developers to catch issues early ensure code is secure and efficient 
  
 1. Launch Server 2cpu and 4gb ram 20gb storage with Docker (ports open 9000,22)
@@ -69,7 +69,7 @@
 		
 ![alt text](.images/image-6.png)
 
-## Nexus Repository Server  
+# Nexus Repository Server  
  - It Provides centrolized management of artifact, including binaries, docker containers and build artifacts, it will store and retrive artifacts, it works as centralized location for managing dependencies and artifacts  
  
  1. Launch Server 2cpu and 4gb ram 20gb storage with Docker 
@@ -120,7 +120,7 @@
 
 ![alt text](.images/image-3.png)
 
-## Configure Jenkins Server 
+# Configure Jenkins Server 
 
  ### Plugins-Download
   1. Eclipse Temurin installer
@@ -189,7 +189,7 @@
     
 ![alt text](.images/image-14.png)
 
-### Access SonarQube server integration from Jenkins 
+# Access SonarQube server integration from Jenkins with Pipeline stage
  - Goto Pipeline Syntax-> 
 
 ![alt text](.images/image-17.png)
@@ -231,7 +231,7 @@ stage('SonarQube Analsyis') {
 ![alt text](.images/image-20.png)
 
 
-### To Access Nexus From Jenkins pipeline 
+# To Access Nexus From Jenkins pipeline with Pipeline stage  
  - In ordered to publish an artifact to Nexus Repository we have to setup a process 
  - to access Nexus server we have to download a plugin "config file provider" this plugin we already downloaded so after this in jenkins a section available in =====>  Manage Jenkins-> Managed File  
 
@@ -253,7 +253,7 @@ stage('SonarQube Analsyis') {
 
 	<server>
 	  <id>maven-snapshots</id>
-	  <username>admin</username>
+	  <username>admin</username> 
 	  <password>nexus-pswd</password>
 	</server>
 	```
