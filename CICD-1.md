@@ -320,6 +320,133 @@ stage('Push Docker Image') {
 
 
 
+
+
+
+
+# KUBEADM SETUP 
+ 1. Launch 3 machines with t2.medium 2cp, 4gb ram, 20gb storage 
+  - install required tools on all machines  kubeadm=1.28.1-1.1 kubelet=1.28.1-1.1 kubectl=1.28.1-1.1
+  - Initialise Master with IP address range for pods to use 
+  - Deploy Calico Network and Ingress (NGINX) on master machine
+ 2. Generate token on Master Paste into worker machines to work as worker machines   
+
+
+
+# TO SCAN K8S CLUSTER OPTIONAL  
+```bash
+# Note: After setting up k8s cluster best practice to scan k8s cluster before using tools in this link <https://github.com/Shopify/kubeaudit/releases/>
+tar -xvzf kubeaudit_linux_amd64.tar.gz
+sudo mv kubeaudit /usr/local/bin/
+kubeaudit all 
+```
+
+# APPLICATION DEPLOYMENT INTO K8S 
+1. Deploy app into k8s cluster using with RBAC - Role Based Access 
+2. Role will Conatine Required Permissions - It basically used for attached to Users like (ServiceAccount) 
+  - Create webapps namespace
+  - create ServiceAccount with jenkins username 
+  - create Role with required permissions 
+  - Bind Role to jenkins user  (Now jenkins user able to deploy app into k8s cluster)   
+3. Create a Token for k8s authentication from jenkins user 
+4. after creating secret yaml file | it will give token describe it take copy of it Paste into Jenkins Dashboard -> Manage Jenkins -> Credentials with name (k8s-cred) 
+```bash
+kubectl describe secret mysecretname -n webapps # this command will give you token deatils 
+```
+
+```bash
+################################################################
+# ############### ORDERED TO CREATE ROLE #######################
+################################################################
+# CREATE A NAMESPACE WITH (ns.yml) file  
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: webapps
+
+# CREATE SERVICE ACCOUNT WITH jenkins USERNAME (svc.yml) file
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: jenkins
+  namespace: webapps
+
+
+# CREATE ROLE (role.yml) file 
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: app-role
+  namespace: webapps
+rules:
+  - apiGroups:
+        - ""
+        - apps
+        - autoscaling
+        - batch
+        - extensions
+        - policy
+        - rbac.authorization.k8s.io
+    resources:
+      - pods
+      - secrets
+      - componentstatuses
+      - configmaps
+      - daemonsets
+      - deployments
+      - events
+      - endpoints
+      - horizontalpodautoscalers
+      - ingress
+      - jobs
+      - limitranges
+      - namespaces
+      - nodes
+      - pods
+      - persistentvolumes
+      - persistentvolumeclaims
+      - resourcequotas
+      - replicasets
+      - replicationcontrollers
+      - serviceaccounts
+      - services
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+
+# BIND ROLE TO SERVICE ACCOUNT - jenkins USER (bind.yml) file 
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: app-rolebinding
+  namespace: webapps 
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: app-role 
+subjects:
+- namespace: webapps 
+  kind: ServiceAccount
+  name: jenkins 
+
+# CREATE TOKEN (sec.yml)
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/service-account-token
+metadata:
+  name: mysecretname
+  namespace: webapps
+  annotations:
+    kubernetes.io/service-account.name: jenkins 
+```
+
+
+
+
+
+
+
+
+
 # Complete Pipeline 
 
 ```bash
@@ -475,9 +602,6 @@ pipeline {
 }
 ```
 
-
-
-
 # Softwares to download 
 ```bash
 # On Jenkins server setup softwares 
@@ -489,8 +613,7 @@ sudo wget -O /etc/apt/keyrings/jenkins-keyring.asc \
 echo "deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc]" \
   https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
   /etc/apt/sources.list.d/jenkins.list > /dev/null
-sudo apt-get update
-sudo apt-get install jenkins
+sudo apt-get install jenkins -y
 # trive download 
 sudo apt-get install wget apt-transport-https gnupg lsb-release
 wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
@@ -507,7 +630,46 @@ docker run --name sonar-server -d -p 9000:9000 sonarqube:lts-community
 curl -fsSL https://get.docker.com -o install-docker.sh
 sh install-docker.sh
 sudo docker run -d --name nexus -p 8081:8081 sonatype/nexus3
+
+# =========KUBEADM SETUP COMMANDS=========================== 
+# UPDATE SYSTEM REPO
+sudo apt-get update -y
+
+# INSTALLING DOCKER ON WORKER AND MASTER MACHINES 
+sudo apt install docker.io -y
+sudo chmod 666 /var/run/docker.sock
+
+# INSTALL REQUIRED DEPENDENCIES ON MASTER AND WORKER MACHINES 
+sudo apt-get install -y apt-transport-https ca-certificates curl gnupg
+sudo mkdir -p -m 755 /etc/apt/keyrings
+
+# ADDING K8S REPO AND GPG KEY ON MASTER AND WORKER MACHINES 
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+
+# UPDATING REPO AGAIN ON MASTER AND WORKER MACHINES 
+sudo apt update -y
+
+# INSTALLING K8S COMPONENTS ON MASTER AND WORKER NODE 
+sudo apt install -y kubeadm=1.28.1-1.1 kubelet=1.28.1-1.1 kubectl=1.28.1-1.1
+
+
+# INITIALIZING K8S-MASTER MACHINE ONLY  
+sudo kubeadm init --pod-network-cidr=10.244.0.0/16 # this ip address <10.244.0.0/16> range of network ips we get and each pod will get assigned to each ip from this range only | if want we can change range also | and this command will give a command like token this will help to connect worker machines if we paste on worker machines 
+
+# CONFIGURE K8S ON MASTER MACHINE 
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+# CREATING OR DEPLOYING CALICO NETWORK ON MASTER MACHINE 
+kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+
+# DEPLOY OR CREATE INGRESS CONTROLLER (NGINX) ON MASTER MACHINE 
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.49.0/deploy/static/provider/baremetal/deploy.yaml
+
 ```
+
 
 
 # Pipeline Code 
