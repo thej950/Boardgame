@@ -49,10 +49,11 @@
  ```bash
  docker run --name sonar-server -d -p 9000:9000 sonarqube:lts-community  
  ```
-  `Access http://<public_ip>:9000
-	usrname: admin
-	pswd: admin`
-
+  ```bash
+  Access http://<public_ip>:9000
+	 usrname: admin
+	 pswd: admin
+  ```
 2. Generate Token in Sonarqube 
 	Administration->security->create 
 	  name: sr-token
