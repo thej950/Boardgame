@@ -49,9 +49,9 @@
  ```bash
  docker run --name sonar-server -d -p 9000:9000 sonarqube:lts-community  
  ```
- - Access http://<public_ip>:9000
+  `Access http://<public_ip>:9000
 	usrname: admin
-	pswd: admin
+	pswd: admin`
 
 2. Generate Token in Sonarqube 
 	Administration->security->create 
@@ -444,10 +444,6 @@ metadata:
 
 
 
-
-
-
-
 # Complete Pipeline 
 
 ```bash
@@ -605,8 +601,10 @@ pipeline {
 
 # Softwares to download 
 ```bash
-# On Jenkins server setup softwares 
-# Jenkins and java Download 
+#####################################################
+########### On Jenkins server setup softwares ###############
+############ Jenkins and java Download ####################
+##########################################################
 sudo apt update -y
 sudo apt install openjdk-17-jdk -y
 sudo wget -O /etc/apt/keyrings/jenkins-keyring.asc \
@@ -632,27 +630,32 @@ curl -fsSL https://get.docker.com -o install-docker.sh
 sh install-docker.sh
 sudo docker run -d --name nexus -p 8081:8081 sonatype/nexus3
 
-# =========KUBEADM SETUP COMMANDS=========================== 
+################################################################
+##################### KUBEADM SETUP COMMANDS #################### 
+########################## USE Below Link to Download Latest Version of Kubeadm #########################
+#### https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/ ############
+########################################################################
 # UPDATE SYSTEM REPO
 sudo apt-get update -y
 
 # INSTALLING DOCKER ON WORKER AND MASTER MACHINES 
 sudo apt install docker.io -y
-sudo chmod 666 /var/run/docker.sock
+sudo chmod 666 /var/run/docker.sock # This command Help to provide all users able to run docker commands without sudo using  
 
 # INSTALL REQUIRED DEPENDENCIES ON MASTER AND WORKER MACHINES 
-sudo apt-get install -y apt-transport-https ca-certificates curl gnupg
-sudo mkdir -p -m 755 /etc/apt/keyrings
+sudo apt-get install -y apt-transport-https ca-certificates curl gpg
 
 # ADDING K8S REPO AND GPG KEY ON MASTER AND WORKER MACHINES 
-curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.33/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.33/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
 # UPDATING REPO AGAIN ON MASTER AND WORKER MACHINES 
-sudo apt update -y
+sudo apt-get update
 
 # INSTALLING K8S COMPONENTS ON MASTER AND WORKER NODE 
-sudo apt install -y kubeadm=1.28.1-1.1 kubelet=1.28.1-1.1 kubectl=1.28.1-1.1
+sudo apt-get install -y kubelet kubeadm kubectl
+sudo apt-mark hold kubelet kubeadm kubectl
+
 
 
 # INITIALIZING K8S-MASTER MACHINE ONLY  
