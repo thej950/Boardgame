@@ -142,68 +142,76 @@ pswd : ************* -> paste here copied password
 ![alt text](.images/image-8.png)
 
 
- ### Add Credentials 
-  `Manage Jenkins->credentials->Globals`
-	 ```bash
-     1. sonarqube  
-		kind: secret text 
-		secret:(*****) ->paste here "sr-token" received from sonarQube token
-		id: sonar-token
-		description: sonar-token  
-    ```
+### Add Credentials 
+
+`->Manage Jenkins->credentials->Globals`
+	 
+```bash
+    1. sonarqube  
+    kind: secret text 
+    secret:(*****) ->paste here "sr-token" received from sonarQube token
+    id: sonar-token
+    description: sonar-token  
+```
 
 ![alt text](.images/image-9.png)
 
 ![alt text](.images/image-10.png)
 
-	 ```bash
-     2. Add dockerhub credentials 
-		usrname: navathej408
-		pswd: ****
-		id: docker-cred
-		cred: docker-cred
-    ```
+```bash
+2. Add dockerhub credentials 
+usrname: navathej408
+pswd: ****
+id: docker-cred
+cred: docker-cred
+```
 ![alt text](.images/msedge_qluE1Z9nVi.png)
 
 ![alt text](.images/image-12.png)
 
 
- ### Configuring Tools 
+### Configuring Tools 
   
-  `DashBoard->Manage Jenkins->Tools->`
-	```bsh
-     1. Java 
-	   name : java17
-		- select install automatically (install from adopetium.net(17 version))
-	 2. SonarQube Scanner Installations
-	   name : sonar-scanner 
-		- select install automatically (sonarQube scanner 5.0.1.3006)
-	 3. maven 
-	   name : maven3 
-		-> Install from Apache (version 3.6.1)
-	 4. Docker 
-	   name : docker 
-		- select insatll automatically (latest) 
-    ```
+`DashBoard->Manage Jenkins->Tools->`
+
+```bsh
+1. Java 
+name : java17
+- select install automatically (install from adopetium.net(17 version))
+
+2. SonarQube Scanner Installations
+name : sonar-scanner 
+- select install automatically (sonarQube scanner 5.0.1.3006)
+
+3. maven 
+name : maven3 
+-> Install from Apache (version 3.6.1)
+
+4. Docker 
+name : docker 
+- select insatll automatically (latest) 
+```
 
 ![alt text](.images/image-13.png)
 
  ### Configure Systems 
-  - Manage Jenkins-> System-> 
-	1. SonarQube Servers
-	 name: sonar
-	 server URL : http://<public_ip>:9000
-	 server authentication token: sonar-token
-    
+  `- Manage Jenkins-> System->`
+```bash
+1. SonarQube Servers
+    name: sonar
+    server URL : http://<public_ip>:9000
+    server authentication token: sonar-token
+```
+
 ![alt text](.images/image-14.png)
 
 # Access SonarQube server integration from Jenkins with Pipeline stage
- - Goto Pipeline Syntax  
+ `- Goto Pipeline Syntax` 
 
 ![alt text](.images/image-17.png)
 
 
- - Below environment need to add below tools section 
+- Below environment need to add below tools section 
 
 ```bash
 environment {
