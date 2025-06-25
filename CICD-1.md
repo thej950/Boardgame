@@ -81,16 +81,17 @@
 	- Access http://<public_ip>:8081
 	- Get Password container 
 	
-	```bash	
-	docker exec -it Nexus bash
-	```
-		
-  >> cat sonartype-work/admin.password -> copy this password 
-	
- - Access from brwoser 
-	usrname: admin
-	pswd : ************* -> paste here copied password 
+```bash	
+docker exec -it Nexus bash
 
+cat sonartype-work/admin.password # copy this password
+```		
+	
+```bash
+Access from brwoser 
+usrname: admin
+pswd : ************* -> paste here copied password 
+```
 
 ![alt text](.images/image.png)
 
@@ -142,31 +143,36 @@
 
 
  ### Add Credentials 
-  - Manage Jenkins->credentials->Globals
-	 1. sonarqube  
+  `Manage Jenkins->credentials->Globals`
+	 ```bash
+     1. sonarqube  
 		kind: secret text 
 		secret:(*****) ->paste here "sr-token" received from sonarQube token
 		id: sonar-token
 		description: sonar-token  
+    ```
 
 ![alt text](.images/image-9.png)
 
 ![alt text](.images/image-10.png)
 
-	 2. Add dockerhub credentials 
+	 ```bash
+     2. Add dockerhub credentials 
 		usrname: navathej408
 		pswd: ****
 		id: docker-cred
 		cred: docker-cred
-
+    ```
 ![alt text](.images/msedge_qluE1Z9nVi.png)
 
 ![alt text](.images/image-12.png)
 
 
  ### Configuring Tools 
-  - DashBoard->Manage Jenkins->Tools->
-	 1. Java 
+  
+  `DashBoard->Manage Jenkins->Tools->`
+	```bsh
+     1. Java 
 	   name : java17
 		- select install automatically (install from adopetium.net(17 version))
 	 2. SonarQube Scanner Installations
@@ -178,6 +184,7 @@
 	 4. Docker 
 	   name : docker 
 		- select insatll automatically (latest) 
+    ```
 
 ![alt text](.images/image-13.png)
 
